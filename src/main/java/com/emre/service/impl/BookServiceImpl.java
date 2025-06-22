@@ -2,6 +2,7 @@ package com.emre.service.impl;
 
 import com.emre.dto.DtoBook;
 import com.emre.dto.DtoBookIU;
+import com.emre.enums.BookStatusType;
 import com.emre.exception.BaseException;
 import com.emre.exception.ErrorMessage;
 import com.emre.exception.MessageType;
@@ -22,10 +23,10 @@ public class BookServiceImpl implements IBookService {
     @Autowired
     private BookRepository bookRepository;
 
-
-    private Book createBook(DtoBookIU dtoBookIU){
+    private Book createBook(DtoBookIU dtoBookIU) {
         Book book = new Book();
-        BeanUtils.copyProperties(dtoBookIU,book);
+        BeanUtils.copyProperties(dtoBookIU, book);
+        book.setStatus(BookStatusType.AVAILABLE);
         return book;
     }
 
@@ -33,7 +34,7 @@ public class BookServiceImpl implements IBookService {
     public DtoBook saveBook(DtoBookIU dtoBookIU) {
         DtoBook dtoBook = new DtoBook();
         Book savedBook = bookRepository.save(createBook(dtoBookIU));
-        BeanUtils.copyProperties(savedBook,dtoBook);
+        BeanUtils.copyProperties(savedBook, dtoBook);
         return dtoBook;
     }
 
@@ -54,12 +55,11 @@ public class BookServiceImpl implements IBookService {
     @Override
     public DtoBook getBookById(Long id) {
         Optional<Book> optBook = bookRepository.findById(id);
-        if (optBook.isEmpty()){
-            throw new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST,id.toString()));
+        if (optBook.isEmpty()) {
+            throw new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, id.toString()));
         }
 
         return convertToDto(optBook.get());
     }
-
 
 }
