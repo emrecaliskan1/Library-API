@@ -16,7 +16,10 @@ public class DtoBorrow {
 
     private Long id;
     private Long userId;
+    private String username;
     private Long bookId;
+    private String bookName;
+    private String writer;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private Date borrowDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")

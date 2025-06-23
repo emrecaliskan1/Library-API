@@ -11,6 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class DtoBook {
 
+    private Long id;
+
     private String name;
 
     private String writer;

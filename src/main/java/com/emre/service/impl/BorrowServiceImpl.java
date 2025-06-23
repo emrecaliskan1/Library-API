@@ -37,11 +37,10 @@ public class BorrowServiceImpl implements IBorrowService {
     @Override
     @Transactional
     public DtoBorrow borrowBook(DtoBorrowIU dtoBorrowIU) {
-        // Kullanıcı kontrolü
+
         User user = userRepository.findById(dtoBorrowIU.getUserId()).orElseThrow(() -> new BaseException(
                 new ErrorMessage(MessageType.USERNAME_NOT_FOUND, dtoBorrowIU.getUserId().toString())));
 
-        // Kitap kontrolü
         Book book = bookRepository.findById(dtoBorrowIU.getBookId()).orElseThrow(() -> new BaseException(
                 new ErrorMessage(MessageType.NO_RECORD_EXIST, dtoBorrowIU.getBookId().toString())));
 
@@ -50,25 +49,24 @@ public class BorrowServiceImpl implements IBorrowService {
                     new ErrorMessage(MessageType.BOOK_NOT_AVAILABLE, dtoBorrowIU.getBookId().toString()));
         }
 
-        // Borrow kaydı oluştur
         Borrow borrow = new Borrow();
         borrow.setUser(user);
         borrow.setBook(book);
         borrow.setBorrowDate(new Date());
         borrow.setReturnDate(dtoBorrowIU.getReturnDate());
 
-        // Kitap durumunu değiştir
         book.setStatus(BookStatusType.NONAVAILABLE);
 
-        // Kaydet
         bookRepository.save(book);
         Borrow savedBorrow = borrowRepository.save(borrow);
 
-        // DTO dönüşü
         DtoBorrow dto = new DtoBorrow();
         dto.setId(savedBorrow.getId());
         dto.setUserId(dtoBorrowIU.getUserId());
+        dto.setUsername(user.getUsername());
         dto.setBookId(dtoBorrowIU.getBookId());
+        dto.setBookName(book.getName());
+        dto.setWriter(book.getWriter());
         dto.setBorrowDate(savedBorrow.getBorrowDate());
         dto.setReturnDate(savedBorrow.getReturnDate());
         return dto;
@@ -103,6 +101,7 @@ public class BorrowServiceImpl implements IBorrowService {
             throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, "Kitap zaten iade edilmiş."));
         }
         borrow.setReturned(true);
+        borrow.setReturnDate(new Date());
         Book book = borrow.getBook();
         book.setStatus(BookStatusType.AVAILABLE);
         bookRepository.save(book);
@@ -110,7 +109,10 @@ public class BorrowServiceImpl implements IBorrowService {
         DtoBorrow dto = new DtoBorrow();
         dto.setId(savedBorrow.getId());
         dto.setUserId(savedBorrow.getUser().getId());
+        dto.setUsername(savedBorrow.getUser().getUsername());
         dto.setBookId(savedBorrow.getBook().getId());
+        dto.setBookName(savedBorrow.getBook().getName());
+        dto.setWriter(savedBorrow.getBook().getWriter());
         dto.setBorrowDate(savedBorrow.getBorrowDate());
         dto.setReturnDate(savedBorrow.getReturnDate());
         return dto;
